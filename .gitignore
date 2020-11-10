@@ -1,1 +1,7 @@
 TIMIT/*
+__pycache__
+archive.zip
+train_tisv/*
+test_tisv/*
+speech_id_checkpoint/*
+working_model/*
