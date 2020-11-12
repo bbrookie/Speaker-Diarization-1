@@ -132,6 +132,7 @@ def VAD_chunk(aggressiveness, path):
     vad = webrtcvad.Vad(int(aggressiveness))
     frames = frame_generator(20, byte_audio, hp.data.sr)
     frames = list(frames)
+    print(len(frames))
     times = vad_collector(hp.data.sr, 20, 200, vad, frames)
     speech_times = []
     speech_segs = []
