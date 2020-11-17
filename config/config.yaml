@@ -22,11 +22,11 @@ model:
     model_path: './model.model' #Model path for testing, inference, or resuming training
 ---
 train:
-    N : 4 #Number of speakers in batch
-    M : 5 #Number of utterances per speaker
+    N : 6 #Number of speakers in batch
+    M : 7 #Number of utterances per speaker
     num_workers: 0 #number of workers for dataloader
     lr: 0.003 
-    epochs: 950 #Max training speaker epoch 
+    epochs: 5000 #Max training speaker epoch 
     log_interval: 30 #Epochs before printing progress
     log_file: './speech_id_checkpoint/Stats'
     checkpoint_interval: 120 #Save model after x speaker epochs
