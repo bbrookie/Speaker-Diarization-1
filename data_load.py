@@ -73,7 +73,14 @@ class SpeakerDatasetTIMITPreprocessed(Dataset):
             selected_file = np_file_list[idx]               
         
         utters = np.load(os.path.join(self.path, selected_file))        # load utterance spectrogram of selected speaker
+        empty_speakers = []
+        while(utters.shape[0] == 0):
+            empty_speakers.append(selected_file)
+            #print(utters.shape, "Empty Speakers list", empty_speakers)
+            selected_file = random.sample(np_file_list, 1)[0]  # select random speaker
+            utters = np.load(os.path.join(self.path, selected_file))
         if self.shuffle:
+            #print(utters.shape[0], self.utter_num)
             utter_index = np.random.randint(0, utters.shape[0], self.utter_num)   # select M utterances per speaker
             utterance = utters[utter_index]       
         else:
@@ -82,4 +89,6 @@ class SpeakerDatasetTIMITPreprocessed(Dataset):
         utterance = utterance[:,:,:160]               # TODO implement variable length batch size
 
         utterance = torch.tensor(np.transpose(utterance, axes=(0,2,1)))     # transpose [batch, frames, n_mels]
+        #print(utterance.shape)
         return utterance
+

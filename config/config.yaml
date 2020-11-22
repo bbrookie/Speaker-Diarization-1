@@ -1,4 +1,4 @@
-training: !!bool "false"
+training: !!bool "true"
 device: "cuda"
 unprocessed_data: './TIMIT/data/*/*/*/*.wav'
 ---
@@ -13,7 +13,7 @@ data:
     window: 0.025 #(s)
     hop: 0.01 #(s)
     nmels: 40 #Number of mel energies
-    tisv_frame: 180 #Max number of time steps in input after preprocess
+    tisv_frame: 32 #Max number of time steps in input after preprocess
 ---   
 model:
     hidden: 768 #Number of LSTM hidden layer units
@@ -22,12 +22,12 @@ model:
     model_path: './model.model' #Model path for testing, inference, or resuming training
 ---
 train:
-    N : 6 #Number of speakers in batch
-    M : 7 #Number of utterances per speaker
+    N : 4 #Number of speakers in batch
+    M : 5 #Number of utterances per speaker
     num_workers: 0 #number of workers for dataloader
-    lr: 0.003 
-    epochs: 5000 #Max training speaker epoch 
-    log_interval: 30 #Epochs before printing progress
+    lr: 0.01 
+    epochs: 8000 #Max training speaker epoch 
+    log_interval: 5 #Epochs before printing progress
     log_file: './speech_id_checkpoint/Stats'
     checkpoint_interval: 120 #Save model after x speaker epochs
     checkpoint_dir: './speech_id_checkpoint'

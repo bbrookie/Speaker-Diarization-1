@@ -66,6 +66,7 @@ def train(model_path):
             
             total_loss = total_loss + loss
             iteration += 1
+            #print(batch_id, loss, e)
             if (batch_id + 1) % hp.train.log_interval == 0:
                 mesg = "{0}\tEpoch:{1}[{2}/{3}],Iteration:{4}\tLoss:{5:.4f}\tTLoss:{6:.4f}\t\n".format(time.ctime(), e+1,
                         batch_id+1, len(train_dataset)//hp.train.N, iteration,loss, total_loss / (batch_id + 1))
@@ -158,3 +159,4 @@ if __name__=="__main__":
         train(hp.model.model_path)
     else:
         test(hp.model.model_path)
+

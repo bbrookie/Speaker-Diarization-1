@@ -42,9 +42,9 @@ def save_spectrogram_tisv():
                                               win_length=int(hp.data.window * sr), hop_length=int(hp.data.hop * sr))
                         S = np.abs(S) ** 2
                         mel_basis = librosa.filters.mel(sr=hp.data.sr, n_fft=hp.data.nfft, n_mels=hp.data.nmels)
-                        S = np.log10(np.dot(mel_basis, S) + 1e-6)           # log mel spectrogram of utterances
+                        S = np.log10(np.dot(mel_basis, S) + 1e-6); print("*************",S.shape)           # log mel spectrogram of utterances
                         utterances_spec.append(S[:, :hp.data.tisv_frame])    # first 180 frames of partial utterance
-                        utterances_spec.append(S[:, -hp.data.tisv_frame:])   # last 180 frames of partial utterance
+                        utterances_spec.append(S[:, -hp.data.tisv_frame:]); print("----------", utterances_spec[-1].shape)   # last 180 frames of partial utterance
 
         utterances_spec = np.array(utterances_spec)
         print(utterances_spec.shape)
