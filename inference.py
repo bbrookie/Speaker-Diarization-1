@@ -40,7 +40,7 @@ def get_STFTs(segs, times):
         S = np.abs(S)**2
         mel_basis = librosa.filters.mel(sr, n_fft=hp.data.nfft, n_mels=hp.data.nmels)
         S = np.log10(np.dot(mel_basis, S) + 1e-6)           # log mel spectrogram of utterances
-        print("S.shape", seg.shape, S.shape)
+        #print("S.shape", seg.shape, S.shape)
         for j in range(0, S.shape[1], int(.12/hp.data.hop)):
             if j + 24 < S.shape[1]:
                 STFT_frames.append(S[:,j:j+24])
@@ -107,7 +107,7 @@ def align_times(embeddings, times):
                 limit = i + 1
                 break
         if(start == end):
-            print("Awkward Condition", times[i], times[i + 1] if i != (len(times) - 1) else "end")
+            #print("Awkward Condition", times[i], times[i + 1] if i != (len(times) - 1) else "end")
             continue
         if(append_to_partitions == True):
             partitions.append([start,end])
@@ -147,24 +147,24 @@ def infer_one_file(wav):
     if wav[-4:] == '.WAV' or wav[-4:] == '.wav':
         times, segs = VAD_chunk(2, wav)
         if segs == []:
-            print('No voice activity detected')
+            #print('No voice activity detected')
             return
         #print(times)
         #print("********************\nSegs:")
         #print([seg.shape for seg in segs], "\n***********************************\n")
         concat_seg, concat_times = concat_segs(times, segs); #print("\n\n*****\n", concat_times)
-        print("length of concatednated segments", len(concat_seg), len(concat_times))
-        print("concatenated segments", concat_seg)
-        print()
-        print("Concatenated times", concat_times)
+        #print("length of concatenated segments", len(concat_seg), len(concat_times))
+        #print("concatenated segments", concat_seg)
+        #print()
+        #print("Concatenated times", concat_times)
         STFT_frames, STFT_times = get_STFTs(concat_seg, concat_times)
         STFT_frames = np.stack(STFT_frames, axis=2)
         STFT_frames = torch.tensor(np.transpose(STFT_frames, axes=(2,1,0)))
-        print("STFT_frames dimensions", STFT_frames.shape, STFT_frames[0].shape, STFT_frames[1].shape)
-        print("STFT_times dimensions", len(STFT_times))
+        #print("STFT_frames dimensions", STFT_frames.shape, STFT_frames[0].shape, STFT_frames[1].shape)
+        #print("STFT_times dimensions", len(STFT_times))
         embeddings = run_model(STFT_frames, embedder_net)
         #print("This is it", len(embeddings), len(STFT_times))
-        print(STFT_times)
+        #print(STFT_times)
         #print()
         aligned_embeddings,times = align_times(embeddings.detach().numpy(), STFT_times)
         #print("Aligned embeddings", aligned_embeddings.shape, len(STFT_frames), len(STFT_times))
@@ -192,20 +192,35 @@ if __name__ == "__main__":
     labels, times = infer_one_file(audio_path)
     #for label in labels:
     #    #print(label)
-    print(labels)
-    print()
-    print(times)
+    #print(labels)
+    #print()
+    #print(times)
     start_t = times[0][0]
     end_t   = times[0][1]
-    for i in range(1, len(times), 1):
-        if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
-            end_t = times[i][1]
-            if(i == len(times) - 1):
+
+    kaldi_comparision = True
+    if (kaldi_comparision):
+        for i in range(1, len(times), 1):
+            if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
+                end_t = times[i][1]
+                if(i == len(times) - 1):
+                    print("SPEAKER", audio_path[:-4], "0", " {start:.2f} to {duration:.2f} <NA> <NA> {id} <NA> <NA>".format(start = start_t, duration = end_t - start_t, id = labels[ i - 1]))
+            else:
+                print("SPEAKER", audio_path[:-4], "0", " {start:.2f} to {duration:.2f} <NA> <NA> {id} <NA> <NA>".format(start = start_t, duration = end_t - start_t, id = labels[ i - 1]))
+                start_t = times[i][0]
+                end_t = times[i][1]
+       
+    else:
+
+        for i in range(1, len(times), 1):
+            if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
+                end_t = times[i][1]
+                if(i == len(times) - 1):
+                    print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
+            else:
                 print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
-        else:
-            print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
-            start_t = times[i][0]
-            end_t = times[i][1]
+                start_t = times[i][0]
+                end_t = times[i][1]
 
 """    print(labels.shape)
 
