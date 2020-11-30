@@ -3,6 +3,7 @@ from pydub.playback import play
 from pydub.generators import WhiteNoise
 from pydub.utils import mediainfo
 import numpy as np
+from pydub.playback import play
 #import librosa
 
 audio_in_file = "in_sine.wav"
@@ -20,8 +21,14 @@ class AudioWave:
         change_in_dBFS = 2 * target_dBFS - sound.dBFS
         return sound.apply_gain(change_in_dBFS)
 
+    def convert_sample_array_to_audio(self, sample_array):
+        self.audio = AudioSegment(sample_array.astype("int16").tobytes(), frame_rate=16000, sample_width=2, channels=1)
+
+    def play_audio(self):
+        play(self.audio)
 
     def get_sample_array(self):
+        print(type(self.audio.get_array_of_samples()))
         return np.array(list(self.audio.get_array_of_samples()))
 
     def generate_white_noise(self, noise_duration, reduction = 10):

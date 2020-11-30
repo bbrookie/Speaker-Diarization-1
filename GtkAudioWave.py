@@ -15,6 +15,7 @@ class GtkAudioWave(AudioWave):
         self.label_text = label_text
         self.Audio_file_name = Audio_file_name
         self.color = color
+        #self.play_audio()
         #if(plot_cycler is None):
         #    self.cycler = (cycler(color=list('rgb')) + cycler(linestyle=['-', '--', '-.']))
         #else:
@@ -23,11 +24,27 @@ class GtkAudioWave(AudioWave):
     def get_result(self):
         self.make_label(self.label_text)
         self.make_plot(self.Audio_file_name)
-        result = self.combine_plot_and_label()
+        self.make_play_btn()
+        result = self.combine_elements()
         return result
 
     def make_label(self, text):
         self.label = Gtk.Label(label = text)
+
+    def make_play_btn(self):
+        icon = Gtk.Image().new_from_file('Images/play.png')
+        self.play_btn = Gtk.Button()
+        self.play_btn.add(icon)
+        self.play_btn.connect("clicked", self.play_btn_clicked)
+        self.play_btn.set_hexpand(False)
+        self.play_btn.set_valign(Gtk.Align.CENTER)
+        self.play_btn.set_vexpand(False)
+        self.play_btn.set_halign(Gtk.Align.CENTER)
+        self.play_btn.set_size_request(50, 50)
+        #print(self.play_btn, icon)
+    
+    def play_btn_clicked(self, w):
+        self.play_audio()
 
     def mask_audio_segments(self, segments):
         new_sample_array = np.copy(self.sample_array)
@@ -53,17 +70,20 @@ class GtkAudioWave(AudioWave):
         sw = Gtk.ScrolledWindow()
 
         canvas = FigureCanvas(fig)
-        canvas.set_size_request(400,200)
+        #canvas.set_size_request(400,200)
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
         hbox.pack_start(canvas, True, True, 0)
         #sw.add_with_viewport(canvas)
         return hbox
 
 
-    def combine_plot_and_label(self):
+    def combine_elements(self):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        hbox.pack_start(self.label, True, True, 0)
-        self.plot.set_size_request(900, 70)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        vbox.pack_start(self.label, True, True, 0)
+        vbox.pack_start(self.play_btn, True, True, 0)
+        hbox.pack_start(vbox, True, True, 0)
+        self.plot.set_size_request(900, 200)
         hbox.pack_start(self.plot, True, True, 0)
-        hbox.set_size_request(100, 10)
+        hbox.set_size_request(300, 300)
         return hbox
