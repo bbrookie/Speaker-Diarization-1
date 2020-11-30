@@ -37,9 +37,9 @@ class SpeakerDiarization():
             speaker_audio_wave = GtkAudioWave("Speaker: "+ str(speaker), self.wave, self.get_next_colors())
             
             speaker_audio_wave.mask_audio_segments(times[labels == speaker])
-            print(type(speaker_audio_wave.sample_array))
+            #print(type(speaker_audio_wave.sample_array))
             speaker_audio_wave.convert_sample_array_to_audio(speaker_audio_wave.sample_array)
-            print(type(speaker_audio_wave.sample_array))
+            #print(type(speaker_audio_wave.sample_array))
             speaker_box = speaker_audio_wave.get_result()
             vbox.pack_start(speaker_box, True, True, 0)
         sw.add(vbox)
