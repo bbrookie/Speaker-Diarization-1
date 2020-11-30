@@ -13,7 +13,7 @@ class AudioWave:
         self.input_wave_file = input_wave_file
         self.audio = AudioSegment.from_wav(input_wave_file)
         self.audio_info = mediainfo(input_wave_file)
-        self.sample_rate = self.audio_info['sample_rate']
+        self.sample_rate = int(self.audio_info['sample_rate'])
         
 
     def match_target_amplitude(self, sound, target_dBFS):
@@ -21,7 +21,7 @@ class AudioWave:
         return sound.apply_gain(change_in_dBFS)
 
 
-    def get_sample_array():
+    def get_sample_array(self):
         return np.array(list(self.audio.get_array_of_samples()))
 
     def generate_white_noise(self, noise_duration, reduction = 10):
