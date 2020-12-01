@@ -4,11 +4,14 @@ from pydub.generators import WhiteNoise
 from pydub.utils import mediainfo
 import numpy as np
 from pydub.playback import play
+from threading import Thread
+from time import sleep
+from multiprocessing import Process
 #import librosa
 
 audio_in_file = "in_sine.wav"
 audio_out_file = "out_sine.wav"
-
+import simpleaudio
 class AudioWave:
     def __init__(self, input_wave_file):
         self.input_wave_file = input_wave_file
@@ -25,7 +28,9 @@ class AudioWave:
         self.audio = AudioSegment(sample_array.astype("int16").tobytes(), frame_rate=16000, sample_width=2, channels=1)
 
     def play_audio(self):
-        play(self.audio)
+        playback = simpleaudio.play_buffer(self.audio.raw_data, num_channels=self.audio.channels, bytes_per_sample=self.audio.sample_width,
+         sample_rate=self.audio.frame_rate)
+        return playback
 
     def get_sample_array(self):
         print(type(self.audio.get_array_of_samples()))

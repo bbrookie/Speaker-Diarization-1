@@ -6,6 +6,11 @@ from matplotlib.figure import Figure
 from numpy import arange, pi, random, linspace
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from AudioWave import AudioWave
+from enum import Enum
+
+class PlayBtnState(Enum):
+    Playing = 1
+    Paused = 2
 
 class GtkAudioWave(AudioWave):
     def __init__(self, label_text, Audio_file_name, color = "#1f77b4"):
@@ -15,11 +20,8 @@ class GtkAudioWave(AudioWave):
         self.label_text = label_text
         self.Audio_file_name = Audio_file_name
         self.color = color
-        #self.play_audio()
-        #if(plot_cycler is None):
-        #    self.cycler = (cycler(color=list('rgb')) + cycler(linestyle=['-', '--', '-.']))
-        #else:
-        #    self.cycler = cycler
+        self.state = PlayBtnState.Paused
+        self.audio_thread = None
         
     def get_result(self):
         self.make_label(self.label_text)
@@ -32,19 +34,27 @@ class GtkAudioWave(AudioWave):
         self.label = Gtk.Label(label = text)
 
     def make_play_btn(self):
-        icon = Gtk.Image().new_from_file('Images/play.png')
+        self.icon = Gtk.Image().new_from_file('Images/play.png')
         self.play_btn = Gtk.Button()
-        self.play_btn.add(icon)
+        self.play_btn.add(self.icon)
         self.play_btn.connect("clicked", self.play_btn_clicked)
         self.play_btn.set_hexpand(False)
         self.play_btn.set_valign(Gtk.Align.CENTER)
         self.play_btn.set_vexpand(False)
         self.play_btn.set_halign(Gtk.Align.CENTER)
         self.play_btn.set_size_request(50, 50)
-        #print(self.play_btn, icon)
     
     def play_btn_clicked(self, w):
-        self.play_audio()
+        if(self.state == PlayBtnState.Paused):
+            self.audio_thread = self.play_audio()
+            self.icon = Gtk.Image().new_from_file('Images/stop.png')
+            self.play_btn.set_image(self.icon)
+            self.state = PlayBtnState.Playing
+        else:
+            self.icon = Gtk.Image().new_from_file('Images/play.png')
+            self.play_btn.set_image(self.icon)
+            self.audio_thread.stop()
+            self.state = PlayBtnState.Paused
 
     def mask_audio_segments(self, segments):
         new_sample_array = np.copy(self.sample_array)

@@ -25,14 +25,10 @@ class SpeakerDiarization():
         labels, times = infer_one_file(self.wave)
         labels = np.array(labels)
         times = np.array(times)
-        #print(times)
-        #print()
-        #print(times[labels == 1])
         num_speakers = np.unique(labels)
         sw = Gtk.ScrolledWindow()
         vbox = Gtk.Box(orientation = Gtk.Orientation.VERTICAL, spacing = 6)
-        #sw.pack_start(vbox, True, True, 0)
-        #speaker
+
         for speaker in num_speakers:
             speaker_audio_wave = GtkAudioWave("Speaker: "+ str(speaker), self.wave, self.get_next_colors())
             

@@ -21,12 +21,7 @@ class MainWindow(Gtk.Window):
         vseparator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
         vseparator.colors = Gdk.color_parse('black')
         self.original_wave = GtkAudioWave("Original Sound Wave", "../test_3_16_mono.wav").get_result()
-        #self.original_wave.set_size_request(800, 300)
         vbox.pack_start(self.original_wave, True, True, 0)
-
-        #self.original_wave2 = sound_wave("Original Sound Wave", "testtt/test_3_16_mono.wav").get_result()
-        #vbox.pack_start(self.original_wave2, True, True, 0)
-        #vbox.pack_start(self.button, True, True, 0)
         vbox.pack_start(vseparator, True, True, 0)
 
         diarization_box = SpeakerDiarization("../test_3_16_mono.wav").run_diarization()
