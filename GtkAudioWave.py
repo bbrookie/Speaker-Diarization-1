@@ -27,13 +27,17 @@ class GtkAudioWave(AudioWave):
         self.state = PlayBtnState.Paused
         self.audio_thread = None
         self.audio_position = 0
-        
-    def get_result(self):
+        self.result = None
         self.make_label(self.label_text)
         self.make_plot(self.Audio_file_name)
         self.make_play_btn()
-        result = self.combine_elements()
-        return result
+
+    def make_visualization(self):
+        self.result = self.combine_elements()
+        return self
+
+    def get_visualization(self):
+        return self.result
 
     def make_label(self, text):
         self.label = Gtk.Label(label = text)
@@ -94,25 +98,34 @@ class GtkAudioWave(AudioWave):
 
 
     def make_plot(self, file_name):
-        self.plot = self.gtk_pyplot(file_name)
+        #self.make_wave_plot()
+        self.get_plot_info()
+        self.make_static_plot()
+        self.plot = self.gtk_pyplot()
 
-    def gtk_pyplot(self, file_name):
+
+    def get_plot_info(self):
         self.fig = Figure(figsize=(5,5), dpi=100)
         self.ax = self.fig.add_subplot(111)
         self.signal = self.sample_array
         self.audio_length = len(self.signal) / self.sample_rate
         self.time = linspace(0, self.audio_length, len(self.signal), endpoint=False)
-
-        self.bars = self.ax.plot(self.time, self.signal, self.color)
-        #ax.set_prop_cycle(self.cycler)
-        #fig.suptitle("Title")
         self.y_min = self.ax.get_ylim()[0]
         self.y_max = self.ax.get_ylim()[1]
         self.refreshPeriod = 100
 
+    def make_static_plot(self):
+
+        self.bars = self.ax.plot(self.time, self.signal, self.color)
+        #ax.set_prop_cycle(self.cycler)
+        #fig.suptitle("Title")
 
 
         self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
+
+
+    def gtk_pyplot(self):
+
 
         #self.ani = animation.FuncAnimation(
         #    self.fig, self.animate, frames=int(2/(self.refreshPeriod/1000)), fargs=(self.vl,self.refreshPeriod), interval=self.refreshPeriod)
@@ -131,8 +144,8 @@ class GtkAudioWave(AudioWave):
         #self.animate(0, self.vl, 100)
         #self.animate(0, self.vl, 200)
         return self.hbox
-
     
+
     def animate(self,i, percentage):
         #line.set_ydata(np.sin(x + i / 50))  # update the data.
         #line.axvline(x + i / 50)
@@ -142,7 +155,8 @@ class GtkAudioWave(AudioWave):
         #i = 100
         #print(self.audio_length)
         self.ax.clear()
-        self.ax.plot(self.time, self.signal, self.color)
+        #self.ax.plot(self.time, self.signal, self.color)
+        self.make_static_plot()
         #ax.plot(time, np.sin(x))
         self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
         t = (percentage / 300) * self.audio_length
@@ -151,6 +165,10 @@ class GtkAudioWave(AudioWave):
         #plt.fill_between(0, 0, i, "grey")
         #return vl,
         self.plot.queue_draw()
+
+    def get_audio(self):
+        return self.audio
+
 
     def combine_elements(self):
         hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)

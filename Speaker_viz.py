@@ -20,13 +20,16 @@ class MainWindow(Gtk.Window):
         #self.resize(1280, 800)
         vseparator = Gtk.Separator(orientation=Gtk.Orientation.VERTICAL)
         vseparator.colors = Gdk.color_parse('black')
-        self.original_wave = GtkAudioWave("Original Sound Wave", "../testdr3_converted.wav").get_result()
-        vbox.pack_start(self.original_wave, True, True, 0)
-        vbox.pack_start(vseparator, True, True, 0)
-
-        diarization_box = SpeakerDiarization("../testdr3_converted.wav").run_diarization()
+        #self.original_wave = GtkAudioWave("Original Sound Wave", "../testdr3_converted.wav").make_visualization().get_visualization()
+        #vbox.pack_start(self.original_wave, True, True, 0)
+        #vbox.pack_start(vseparator, True, True, 0)
+        diarization = SpeakerDiarization("../testdr3_converted.wav")
+        diarization_box = diarization.run_diarization()
+        original_wave = diarization.combine_speakers_visualization()
+        vbox.pack_start(original_wave, True, True, 0)
         diarization_box.set_size_request(-1, 400)
         vbox.pack_start(diarization_box, True, True, 0)
+
 
 
 win = MainWindow()
