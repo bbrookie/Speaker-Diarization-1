@@ -19,12 +19,13 @@ class AdjustedGtkAudioWave(GtkAudioWave):
 
 
     def make_static_plot(self):
-        self.y_max = self.ax.get_ylim()[1]
-        self.y_min = self.ax.get_ylim()[0]
+
         for i, speaker in enumerate(self.speakers):
             time = linspace(0, speaker.audio_length, len(speaker.sample_array), endpoint=False)
             self.ax.plot(time, speaker.sample_array, self.colors[i])
 
+        self.y_max = self.ax.get_ylim()[1]
+        self.y_min = self.ax.get_ylim()[0]
         self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
         
 

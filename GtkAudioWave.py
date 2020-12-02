@@ -28,11 +28,12 @@ class GtkAudioWave(AudioWave):
         self.audio_thread = None
         self.audio_position = 0
         self.result = None
+
+
+    def make_visualization(self):
         self.make_label(self.label_text)
         self.make_plot(self.Audio_file_name)
         self.make_play_btn()
-
-    def make_visualization(self):
         self.result = self.combine_elements()
         #self.plot.queue_draw()
         return self
