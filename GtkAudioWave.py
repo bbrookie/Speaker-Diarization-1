@@ -34,6 +34,7 @@ class GtkAudioWave(AudioWave):
 
     def make_visualization(self):
         self.result = self.combine_elements()
+        #self.plot.queue_draw()
         return self
 
     def get_visualization(self):
@@ -119,8 +120,8 @@ class GtkAudioWave(AudioWave):
         self.bars = self.ax.plot(self.time, self.signal, self.color)
         #ax.set_prop_cycle(self.cycler)
         #fig.suptitle("Title")
-
-
+        self.y_max = self.ax.get_ylim()[1]
+        self.y_min = self.ax.get_ylim()[0]
         self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
 
 
@@ -158,7 +159,7 @@ class GtkAudioWave(AudioWave):
         #self.ax.plot(self.time, self.signal, self.color)
         self.make_static_plot()
         #ax.plot(time, np.sin(x))
-        self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
+        #self.vl = self.ax.axvline(0, ls='-', color='r', lw=1, zorder=10)
         t = (percentage / 300) * self.audio_length
         self.vl.set_xdata([t,t])
         self.ax.fill_between(np.arange(0, t, 0.01), self.y_min, self.y_max, facecolor='grey', alpha=0.4)

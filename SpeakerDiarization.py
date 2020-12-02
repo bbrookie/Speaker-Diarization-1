@@ -19,7 +19,8 @@ class AdjustedGtkAudioWave(GtkAudioWave):
 
 
     def make_static_plot(self):
-
+        self.y_max = self.ax.get_ylim()[1]
+        self.y_min = self.ax.get_ylim()[0]
         for i, speaker in enumerate(self.speakers):
             time = linspace(0, speaker.audio_length, len(speaker.sample_array), endpoint=False)
             self.ax.plot(time, speaker.sample_array, self.colors[i])
@@ -30,7 +31,7 @@ class AdjustedGtkAudioWave(GtkAudioWave):
 class SpeakerDiarization():
     def __init__(self, wave):
         self.wave = wave
-        self.colors = ["#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf", "#1f77b4"]
+        self.colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
         self.cycler_index = 0
         self.speakers = []
         self.wave_annotated = None
