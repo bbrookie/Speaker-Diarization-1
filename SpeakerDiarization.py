@@ -10,7 +10,7 @@ from numpy import arange, pi, random, linspace
 from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo as FigureCanvas
 from GtkAudioWave import GtkAudioWave
 import matplotlib.pyplot as plt
-
+from AdjustedGtkAudioWave import AdjustedGtkAudioWave
 class AdjustedGtkAudioWave(GtkAudioWave):
     def __init__(self, label_text, Audio_file_name, speakers, colors):
         self.speakers = speakers
