@@ -64,7 +64,7 @@ class SpeakerDiarization():
             #print(type(speaker_audio_wave.sample_array))
             speaker_box = speaker_audio_wave.make_visualization().get_visualization()
             self.speakers.append(speaker_audio_wave)
-            speaker_audio_wave.export_file("output/Speaker" + str(speaker))
+            speaker_audio_wave.export_file("output/Speaker" + str(speaker)+".wav")
             vbox.pack_start(speaker_box, True, True, 0)
 
         #vbox.pack_start(self.combine_speakers_visualization(), True, True, 0)

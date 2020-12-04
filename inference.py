@@ -173,10 +173,11 @@ def infer_one_file(wav):
         #print()
         #print("Aligned Times", aligned_times)
         # Now that we have obtained the d-vectors, the next step to be done is Spectral Clustering 
+        print(aligned_embeddings.shape, aligned_embeddings[1].shape)
         clusterer = SpectralClusterer(
             min_clusters=2,
             max_clusters=5,
-            p_percentile=0.95,
+            p_percentile=0.93,
             gaussian_blur_sigma=1)
         labels = clusterer.predict(aligned_embeddings)
         return labels, times
