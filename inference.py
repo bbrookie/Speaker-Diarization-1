@@ -177,7 +177,7 @@ def infer_one_file(wav):
         clusterer = SpectralClusterer(
             min_clusters=2,
             max_clusters=5,
-            p_percentile=0.93,
+            p_percentile=0.95,
             gaussian_blur_sigma=1)
         labels = clusterer.predict(aligned_embeddings)
         return labels, times
