@@ -25,8 +25,8 @@ class SpectralClusterer(object):
             max_clusters=None,
             gaussian_blur_sigma=1,
             p_percentile=0.95,
-            thresholding_soft_multiplier=0.05,
-            thresholding_with_row_max=False,
+            thresholding_soft_multiplier=0.10,
+            thresholding_with_row_max=True,
             stop_eigenvalue=1e-2,
             refinement_sequence=DEFAULT_REFINEMENT_SEQUENCE):
         """Constructor of the clusterer.
