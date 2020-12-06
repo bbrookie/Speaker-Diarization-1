@@ -71,7 +71,7 @@ If you want to use the diarization without GUI, the following dependencies have 
 2. numpy
 3. librosa
 4. simpleaudio
-5. hparam
+5. yaml
 6. pydub
 
 If you want to use the GUI, you should have the following dependencies in addition to the previous ones.
