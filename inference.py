@@ -8,6 +8,7 @@ from speech_embedder_net import SpeechEmbedder, GE2ELoss, get_centroids, get_cos
 from VAD_segments import VAD_chunk
 from spectralcluster import SpectralClusterer
 import torch
+import time
 
 def concat_segs(times, segs):
     #Concatenate continuous voiced segments
@@ -39,8 +40,7 @@ def get_STFTs(segs, times):
                               win_length=int(hp.data.window * sr), hop_length=int(hp.data.hop * sr))
         S = np.abs(S)**2
         mel_basis = librosa.filters.mel(sr, n_fft=hp.data.nfft, n_mels=hp.data.nmels)
-        S = np.log10(np.dot(mel_basis, S) + 1e-6)           # log mel spectrogram of utterances
-        #print("S.shape", seg.shape, S.shape)
+        S = np.log10(np.dot(mel_basis, S) + 1e-6)        
         for j in range(0, S.shape[1], int(.12/hp.data.hop)):
             if j + 24 < S.shape[1]:
                 STFT_frames.append(S[:,j:j+24])
@@ -101,13 +101,12 @@ def align_times(embeddings, times):
                 break
             
             else:
-                #i = end_idx
                 start = start_idx
                 end = i + 1 if (i < (len(times) - 2)) else i
                 limit = i + 1
                 break
+
         if(start == end):
-            #print("Awkward Condition", times[i], times[i + 1] if i != (len(times) - 1) else "end")
             continue
         if(append_to_partitions == True):
             partitions.append([start,end])
@@ -120,13 +119,7 @@ def align_times(embeddings, times):
             partitions.append([(len(times) - 2), len(times) - 1])
             times_partitions.append(times[-1])
     avg_embeddings = np.zeros((len(partitions), 256))
-    #print("Error")
-    #print(times_partitions)
-    #print("partitions")
     for i, partition in enumerate(partitions):
-        #print(partition)
-        #norms = [np.linalg.norm(e) for e in embeddings[partition[0]:partition[1]]]
-        #avg_embeddings[i] = np.average(norms)
         avg_embeddings[i] = np.average(embeddings[partition[0]:partition[1]],axis=0) 
     return avg_embeddings, times_partitions
 
@@ -147,32 +140,20 @@ def infer_one_file(wav):
     if wav[-4:] == '.WAV' or wav[-4:] == '.wav':
         times, segs = VAD_chunk(2, wav)
         if segs == []:
-            #print('No voice activity detected')
+
             return
-        #print(times)
-        #print("********************\nSegs:")
-        #print([seg.shape for seg in segs], "\n***********************************\n")
-        concat_seg, concat_times = concat_segs(times, segs); #print("\n\n*****\n", concat_times)
-        #print("length of concatenated segments", len(concat_seg), len(concat_times))
-        #print("concatenated segments", concat_seg)
-        #print()
-        #print("Concatenated times", concat_times)
+
+        concat_seg, concat_times = concat_segs(times, segs)
+
         STFT_frames, STFT_times = get_STFTs(concat_seg, concat_times)
+        print(type(STFT_frames), type(STFT_times))
         STFT_frames = np.stack(STFT_frames, axis=2)
         STFT_frames = torch.tensor(np.transpose(STFT_frames, axes=(2,1,0)))
-        #print("STFT_frames dimensions", STFT_frames.shape, STFT_frames[0].shape, STFT_frames[1].shape)
-        #print("STFT_times dimensions", len(STFT_times))
+
         embeddings = run_model(STFT_frames, embedder_net)
-        #print("This is it", len(embeddings), len(STFT_times))
-        #print(STFT_times)
-        #print()
+
         aligned_embeddings,times = align_times(embeddings.detach().numpy(), STFT_times)
-        #print("Aligned embeddings", aligned_embeddings.shape, len(STFT_frames), len(STFT_times))
-        #print()
-        #print(aligned_embeddings)
-        #print()
-        #print("Aligned Times", aligned_times)
-        # Now that we have obtained the d-vectors, the next step to be done is Spectral Clustering 
+
         print(aligned_embeddings.shape, aligned_embeddings[1].shape)
         clusterer = SpectralClusterer(
             min_clusters=2,
@@ -191,15 +172,11 @@ def infer_one_file(wav):
 if __name__ == "__main__":
     audio_path = sys.argv[1]
     labels, times = infer_one_file(audio_path)
-    #for label in labels:
-    #    #print(label)
-    #print(labels)
-    #print()
-    #print(times)
     start_t = times[0][0]
     end_t   = times[0][1]
 
     kaldi_comparision = True
+    other_support = True
     if (kaldi_comparision):
         for i in range(1, len(times), 1):
             if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
@@ -212,33 +189,36 @@ if __name__ == "__main__":
                 end_t = times[i][1]
        
     else:
+        if(other_support):
+            for i in range(1, len(times), 1):
+                if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
+                    end_t = times[i][1]
+                    if(i == len(times) - 1):
+                        start_str = time.strftime('%H:%M:%S', time.gmtime(start_t))
+                        start_str += ".{}".format(str(start_t).split('.')[1]) if str(start_t).find('.') > 0 else '.00'
 
-        for i in range(1, len(times), 1):
-            if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
-                end_t = times[i][1]
-                if(i == len(times) - 1):
-                    print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
-            else:
-                print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
-                start_t = times[i][0]
-                end_t = times[i][1]
+                        end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
+                        end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
 
-"""    print(labels.shape)
+                        print(labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_str, end = end_str))
+                else:
+                        start_str = time.strftime('%H:%M:%S', time.gmtime(start_t))
+                        start_str += ".{}".format(str(start_t).split('.')[1]) if str(start_t).find('.') > 0 else '.00'
 
-    i = 0
-    label_start = 0
-    labels_end = 0.40
-    
-    for i in range(1, len(labels), 1):
-        if(labels[i] == labels[i - 1]):
-            labels_end += 0.40
+                        end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
+                        end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
+
+                        print(labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_str, end = end_str))
+
+                    start_t = times[i][0]
+                    end_t = times[i][1]            
         else:
-            print("Speaker", labels[i - 1], "from {start} to {end}".format(start = (label_start * 100) / 100, end = (labels_end * 100) / 100))
-            label_start = i * 0.40
-            labels_end = (i * 0.40) + 0.40
-    
-    print("Speaker", labels[i - 1], "from {start} to {end}".format(start = (label_start * 100) / 100, end = (labels_end * 100) / 100))
-"""
-
-
-
+            for i in range(1, len(times), 1):
+                if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
+                    end_t = times[i][1]
+                    if(i == len(times) - 1):
+                        print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
+                else:
+                    print("Speaker", labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_t, end = end_t))
+                    start_t = times[i][0]
+                    end_t = times[i][1]
