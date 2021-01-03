@@ -200,16 +200,9 @@ if __name__ == "__main__":
                         end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
                         end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
 
-                        print(labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_str, end = end_str))
+                        print(labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_str, end = end_str))
                 else:
-                        start_str = time.strftime('%H:%M:%S', time.gmtime(start_t))
-                        start_str += ".{}".format(str(start_t).split('.')[1]) if str(start_t).find('.') > 0 else '.00'
-
-                        end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
-                        end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
-
-                        print(labels[i - 1], "from {start:.2f} to {end:.2f}".format(start = start_str, end = end_str))
-
+                    print(labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_t, end = end_t))
                     start_t = times[i][0]
                     end_t = times[i][1]            
         else:
