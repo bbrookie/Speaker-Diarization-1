@@ -135,7 +135,7 @@ def run_model(X, embedder_net):
     return embeddings
 
 def infer_one_file(wav):
-    embedder_net = init_model('model.model')
+    embedder_net = init_model('model_big.model')
 
     if wav[-4:] == '.WAV' or wav[-4:] == '.wav':
         times, segs = VAD_chunk(2, wav)
@@ -157,8 +157,8 @@ def infer_one_file(wav):
         print(aligned_embeddings.shape, aligned_embeddings[1].shape)
         clusterer = SpectralClusterer(
             min_clusters=2,
-            max_clusters=5,
-            p_percentile=0.96,
+            max_clusters=2,
+            p_percentile=0.93,
             gaussian_blur_sigma=1)
         labels = clusterer.predict(aligned_embeddings)
         return labels, times
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     start_t = times[0][0]
     end_t   = times[0][1]
 
-    kaldi_comparision = True
+    kaldi_comparision = False
     other_support = True
     if (kaldi_comparision):
         for i in range(1, len(times), 1):
@@ -190,6 +190,7 @@ if __name__ == "__main__":
        
     else:
         if(other_support):
+            speakers_str = ""
             for i in range(1, len(times), 1):
                 if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
                     end_t = times[i][1]
@@ -200,11 +201,14 @@ if __name__ == "__main__":
                         end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
                         end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
 
-                        print(labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_str, end = end_str))
+                        speakers_str += labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_str, end = end_str)
                 else:
-                    print(labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_t, end = end_t))
+                    speakers_str += labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_t, end = end_t)
                     start_t = times[i][0]
-                    end_t = times[i][1]            
+                    end_t = times[i][1]
+            os.makedirs("output", exist_ok=True)
+            #with open("output/")
+
         else:
             for i in range(1, len(times), 1):
                 if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
