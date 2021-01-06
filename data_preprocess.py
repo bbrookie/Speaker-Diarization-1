@@ -26,12 +26,15 @@ def save_spectrogram_tisv():
     print("total speaker number : %d"%total_speaker_num)
     print("train : %d, test : %d"%(train_speaker_num, total_speaker_num-train_speaker_num))
     for i, folder in enumerate(audio_path):
-        print("%dth speaker processing..."%i)
+        #print("%dth speaker processing..."%i)
         utterances_spec = []
         for utter_name in os.listdir(folder):
-            if utter_name[-4:] == '.WAV':
+            if utter_name[-4:] == '.WAV' or utter_name[-4:] == '.wav':
                 utter_path = os.path.join(folder, utter_name)         # path of each utterance
                 utter, sr = librosa.core.load(utter_path, hp.data.sr)        # load utterance audio
+                print(utter.shape)
+                if(len(utter) < 32 * 40):
+                    continue
                 intervals = librosa.effects.split(utter, top_db=30)         # voice activity detection 
                 # this works fine for timit but if you get array of shape 0 for any other audio change value of top_db
                 # for vctk dataset use top_db=100
@@ -56,3 +59,4 @@ def save_spectrogram_tisv():
 
 if __name__ == "__main__":
     save_spectrogram_tisv()
+
