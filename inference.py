@@ -191,24 +191,25 @@ if __name__ == "__main__":
     else:
         if(other_support):
             speakers_str = ""
+            start_t = times[0][0]
+            end_t   = times[0][1]
+            out_path = os.path.join("output", os.path.basename(wave)[:-4]+".txt")
             for i in range(1, len(times), 1):
-                if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
+                
+                if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]): 
                     end_t = times[i][1]
+                    
                     if(i == len(times) - 1):
                         start_str = time.strftime('%H:%M:%S', time.gmtime(start_t))
-                        start_str += ".{}".format(str(start_t).split('.')[1]) if str(start_t).find('.') > 0 else '.00'
-
+                        start_str += ".{}".format(str(int(str(start_t).split('.')[1])%100)) if str(start_t).find('.') > 0 else '.00'
                         end_str = time.strftime('%H:%M:%S', time.gmtime(end_t))
-                        end_str += ".{}".format(str(end_t).split('.')[1]) if str(end_t).find('.') > 0 else '.00'
-
-                        speakers_str += labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_str, end = end_str)
-                else:
-                    speakers_str += labels[i - 1], ",{start:.2f},{end:.2f}".format(start = start_t, end = end_t)
-                    start_t = times[i][0]
-                    end_t = times[i][1]
+                        end_str += ".{}".format(str(int(str(end_t).split('.')[1])%100)) if str(end_t).find('.') > 0 else '.00'
+                        speakers_str += str(labels[i - 1]) + ",{start},{end}".format(start = start_str, end = end_str) 
             os.makedirs("output", exist_ok=True)
-            #with open("output/")
-
+            with open(out_path, 'w') as out:
+            out.write(speakers_str)
+            print("Output is written in the output directory.")
+            
         else:
             for i in range(1, len(times), 1):
                 if (times[i][0] - times[i - 1][1] <= 0.03 and labels[i] == labels[i - 1]):
